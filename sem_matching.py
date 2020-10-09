@@ -102,4 +102,7 @@ def predict(news):
     pred=mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)],topn=1)    
     index=pred[0][0]
     url=temp[index]['link']['url']
-    return url
+    if pred[0][1]>0.4:
+        return url
+    else:
+        return 'not found'
