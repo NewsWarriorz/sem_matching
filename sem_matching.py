@@ -95,14 +95,16 @@ mymodel=gensim.models.Doc2Vec.load('doc2vec_1.model')
 vectors = pickle.load(open('vectors.pkl','rb'))
 temp=pickle.load(open('structured_news.pkl','rb'))
 
-def predict(news):  
-    news=news.lower()
-    news=news.split()
-    news=[lemmatizer.lemmatize(word) for word in news if word not in stopwords]
-    pred=mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)],topn=1)    
-    index=pred[0][0]
-    url=temp[index]['link']['url']
-    if pred[0][1]>0.4:
-        return url
-    else:
-        return 'not found'
+
+if __name__=="__main__":
+    def predict(news):  
+        news=news.lower()
+        news=news.split()
+        news=[lemmatizer.lemmatize(word) for word in news if word not in stopwords]
+        pred=mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)],topn=1)    
+        index=pred[0][0]
+        url=temp[index]['link']['url']
+        if pred[0][1]>0.4:
+            return url
+        else:
+            return 'not found'
