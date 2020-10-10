@@ -116,7 +116,9 @@ def predict(news):
     news_data = get_news_data()
     news = news.lower().split()
     news = [lemmatizer.lemmatize(word) for word in news if word not in stopwords]
-    pred = mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)], topn=1)    
+    pred = mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)], topn=2)    
     index = pred[0][0]
+    if index==3460:
+        index=pred[1][0]
     url = news_data[index]['link']['url']
     return url if pred[0][1] > THRESHOLD else None
