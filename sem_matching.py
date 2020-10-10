@@ -1,5 +1,5 @@
 #To train model from scratch, uncomment the following code
-'''
+"""
 import json
 import pandas as pd
 import numpy as np
@@ -78,7 +78,7 @@ test=test.split()
 test=[lemmatizer.lemmatize(word) for word in test if word not in stopwords]
 
 mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(test)],topn=5)
-'''
+"""
 
 
 import json
@@ -91,20 +91,32 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer=WordNetLemmatizer()
 stopwords=set(stopwords.words('english'))
 
-mymodel=gensim.models.Doc2Vec.load('doc2vec_1.model')  
-vectors = pickle.load(open('vectors.pkl','rb'))
-temp=pickle.load(open('structured_news.pkl','rb'))
+THRESHOLD = 0.5
 
+lemmatizer = WordNetLemmatizer()
+stopwords = set(stopwords.words('english'))
+MYMODEL = None  
+# vectors = pickle.load(open('vectors.pkl','rb'))
+NEWS_DATA = None
 
-if __name__=="__main__":
-    def predict(news):  
-        news=news.lower()
-        news=news.split()
-        news=[lemmatizer.lemmatize(word) for word in news if word not in stopwords]
-        pred=mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)],topn=1)    
-        index=pred[0][0]
-        url=temp[index]['link']['url']
-        if pred[0][1]>0.4:
-            return url
-        else:
-            return 'not found'
+def get_model():
+    global MYMODEL
+    if not MYMODEL:
+        MYMODEL = gensim.models.Doc2Vec.load('doc2vec_1.model') 
+    return MYMODEL
+
+def get_news_data():
+    global NEWS_DATA
+    if not NEWS_DATA:
+        NEWS_DATA = pickle.load(open('structured_news.pkl','rb'))
+    return NEWS_DATA
+
+def predict(news):
+    mymodel = get_model()
+    news_data = get_news_data()
+    news = news.lower().split()
+    news = [lemmatizer.lemmatize(word) for word in news if word not in stopwords]
+    pred = mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(news)], topn=1)    
+    index = pred[0][0]
+    url = news_data[index]['link']['url']
+    return url if pred[0][1] > THRESHOLD else None
