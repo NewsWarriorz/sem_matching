@@ -88,8 +88,6 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import pickle
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-lemmatizer=WordNetLemmatizer()
-stopwords=set(stopwords.words('english'))
 
 THRESHOLD = 0.5
 
