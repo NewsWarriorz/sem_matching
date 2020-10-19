@@ -147,5 +147,7 @@ def predict(news):
     for i in range(len(body)):
         if fuzz.token_set_ratio(x,body[i]) >= fuzz.token_set_ratio(x,body[index]):
             index=i
-    
-    return data[index]['link']['url']
+    if fuzz.token_set_ratio(x,data[index])>=70:
+        return data[index]['link']['url']
+    else:
+        None
