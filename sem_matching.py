@@ -89,9 +89,11 @@ import pickle
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from fuzzywuzzy import fuzz,process
+import os
 
 
 THRESHOLD = 0.5
+MIN_WORDS = 4
 
 lemmatizer = WordNetLemmatizer()
 stopwords = set(stopwords.words('english'))
@@ -133,21 +135,24 @@ def predict_vec(news):
     return url if pred[0][1] > THRESHOLD else None
 
 def predict(news):
-    x=news
-    x=re.sub('[^a-zA-Z0-9]',' ',x)
-    x=x.lower()
-    x=x.split()
-    x=[word for word in x if word not in stopwords]
-    x=' '.join(x)
+    x = news
+    x = re.sub('[^a-zA-Z0-9]',' ',x)
+    x = x.lower()
+    x = x.split()
+    if len(x) < MIN_WORDS:
+        return None
+    
+    x = [word for word in x if word not in stopwords]    
+    x = ' '.join(x)
     
     data = get_news_data()
     body = get_news_body()
 
-    index=0
+    index = 0
     for i in range(len(body)):
         if fuzz.token_set_ratio(x,body[i]) >= fuzz.token_set_ratio(x,body[index]):
-            index=i
-    if fuzz.token_set_ratio(x,data[index])>=70:
+            index = i
+    if fuzz.token_set_ratio(x,data[index]) >= 70:
         return data[index]['link']['url']
     else:
         None
