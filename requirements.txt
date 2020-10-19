@@ -2,3 +2,5 @@ gensim==3.8.3
 nltk==3.5
 Flask==1.1.2
 gunicorn==20.0.4
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.12.0

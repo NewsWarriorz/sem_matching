@@ -80,7 +80,7 @@ test=[lemmatizer.lemmatize(word) for word in test if word not in stopwords]
 mymodel.docvecs.most_similar(positive=[mymodel.infer_vector(test)],topn=5)
 """
 
-
+import re
 import json
 import nltk
 import gensim
@@ -88,6 +88,8 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import pickle
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from fuzzywuzzy import fuzz,process
+
 
 THRESHOLD = 0.5
 
@@ -96,6 +98,7 @@ stopwords = set(stopwords.words('english'))
 MYMODEL = None  
 # vectors = pickle.load(open('vectors.pkl','rb'))
 NEWS_DATA = None
+NEWS_BODY = None
 
 def get_model():
     global MYMODEL
@@ -108,8 +111,16 @@ def get_news_data():
     if not NEWS_DATA:
         NEWS_DATA = pickle.load(open('structured_news.pkl','rb'))
     return NEWS_DATA
+    
 
-def predict(news):
+def get_news_body():
+    global NEWS_BODY
+    if not NEWS_BODY:
+        NEWS_BODY = pickle.load(open('news_body.pkl','rb'))
+    return NEWS_BODY
+
+
+def predict_vec(news):
     mymodel = get_model()
     news_data = get_news_data()
     news = news.lower().split()
@@ -120,3 +131,21 @@ def predict(news):
         index=pred[1][0]
     url = news_data[index]['link']['url']
     return url if pred[0][1] > THRESHOLD else None
+
+def predict(news):
+    x=news
+    x=re.sub('[^a-zA-Z0-9]',' ',x)
+    x=x.lower()
+    x=x.split()
+    x=[word for word in x if word not in stopwords]
+    x=' '.join(x)
+    
+    data = get_news_data()
+    body = get_news_body()
+
+    index=0
+    for i in range(len(body)):
+        if fuzz.token_set_ratio(x,body[i]) >= fuzz.token_set_ratio(x,body[index]):
+            index=i
+    
+    return data[index]['link']['url']
